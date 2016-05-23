@@ -1,4 +1,10 @@
 
+*{
+	margin: 0;
+	padding: 0;
+	border:0;
+}
+
 .header, .main {
     display: inline-block;
     height: auto;
@@ -35,16 +41,16 @@
 	border-collapse: collapse;
 	border-spacing: 0;
 	table-layout: fixed;
-	border: 1px solid;
+	border: 0 none;
 }
 
 .fht-table th,.fht-table td {
     overflow: hidden;
 }
 
-.fht-table th,.fht-table td{
+/*.fht-table th,.fht-table td{
 	width: 110px;
-}
+}*/
 
 .fht-table-wrapper,
 .fht-table-wrapper .fht-thead,
@@ -79,6 +85,7 @@
 
 .fht-fixed-body .fht-thead table {
 	margin-right: 20px;
+	border: 0 none;
 }
 .celda_encabezado_general {
     background-color: #003399;
@@ -89,10 +96,40 @@
     text-align: center;
 }
 ._Separador{
+	background-color: #fff;
 	height: 12px;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+._Separador div{
+	width: 4px;
 }
 .celda_normal {
     background-color: #fff;
     border: 1px solid #ccc;
     padding: 2px 4px;
+}
+
+/*style excel*/
+.excel_cell{
+	border: 1px solid #CCC;
+	color: #222;
+	text-align: center;
+	font-size: 13px
+	font-weight:  normal;
+	padding: 4px;
+	white-space: pre-line;
+	empty-cells: show;
+}
+._cell_header{
+	background-color: #EEE;
+}
+._cell_Default{
+	background-color: #FFF;
+	text-align: left;
+}
+
+.excel_cell div{
+	width: 30px;
+	height: 20px;
 }

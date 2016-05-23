@@ -2,33 +2,49 @@
 * CongelarFilaColumna is a  jQuery plugin that allows freezing of rows and columns.
 * Scrolling can be enabled. Both rows and columns can be frozen. Rows to be frozen 
 * should be placed in 'thead' (whole frozen header). You can freeze rows and columns combined with colspan or rowspan.
+*
+* Copyright (c) 2016
+* Author: Agustin Rios Reyes.
+*
+* Licensed under MIT
+* http://www.opensource.org/licenses/mit-license.php
+*
 */
-(function($){
-	
-	$.fn.CongelarFilaColumna = function (method){
+(function($)
+{
+	$.fn.CongelarFilaColumna = function (method)
+	{
 		
-		var defaults = {
+		var defaults =
+		{
 			width:      '100%',
 			height:     '100%',
-			NoColumnas:  2 //Number of columns to freeze
+			NoColumnas:  1 //Number of columns to freeze
 		};
 		var settings = {};
-		var methods = {
+		var methods  =
+		{
 			
-			init: function (options) {
+			init: function (options)
+			{
 				settings = $.extend({}, defaults, options);
 
-				return this.each(function () {
+				return this.each(function ()
+				{
 					var $tabla = $(this); 
 
-					if (helpers._EsUnaTabla($tabla)) { 
+					if (helpers._EsUnaTabla($tabla))
+					{ 
 						methods.setup.apply(this, Array.prototype.slice.call(arguments, 1));
-					} else {
+					}
+					else
+					{
 						$.error('La Tabla No es válida. :( ');
 					};
 				});
 			},
-			setup: function (){
+			setup: function ()
+			{
 				var $wrapper,
 					$tabla      = $(this), 
 					tabla       = this,
@@ -49,14 +65,16 @@
 				helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTHCol,'thead',settings.NoColumnas);
 				helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTBCol,'tbody',settings.NoColumnas);
 
-				if (!$tabla.closest('.fht-table-wrapper').length) {
+				if (!$tabla.closest('.fht-table-wrapper').length)
+				{
 					$tabla.addClass('fht-table');
 					$tabla.wrap('<div class="fht-table-wrapper"></div>');
 				}
 
 				$wrapper = $tabla.closest('.fht-table-wrapper');
 
-				if ( $wrapper.find('.fht-fixed-column').length == 0) {
+				if ( $wrapper.find('.fht-fixed-column').length == 0)
+				{
 					$tabla.wrap('<div class="fht-fixed-body"></div>');
 					$('<div class="fht-fixed-column"></div>').prependTo($wrapper);
 					$fixedBody    = $wrapper.find('.fht-fixed-body');
@@ -67,19 +85,25 @@
 					height: settings.height
 				});
 
-				if (!$tabla.hasClass('fht-table-init')) {
+				if (!$tabla.hasClass('fht-table-init'))
+				{
 					$tabla.wrap('<div class="fht-tbody"><div class="fht-tbody-conten"></div></div>');
 				}
 
 				$tabla.closest('.fht-tbody-conten').css({'width':anchotabla});
 				$divBody = $wrapper.find('div.fht-tbody');
 
-				if (!$tabla.hasClass('fht-table-init')) {
+				if (!$tabla.hasClass('fht-table-init'))
+				{
 
 					$divHead = $('<div class="fht-thead"></div>').prependTo($fixedBody).css({'width':anchotabla});
 					
+					tablaTH.css({'width':anchotabla});
+
 					$divHead.append(tablaTH).css({'width':anchotabla});
-				} else {
+				}
+				else
+				{
 					$divHead = $wrapper.find('div.fht-thead');
 				}
 
@@ -110,7 +134,7 @@
 				$tbody.find('table').css({'width': AnchoCol});
 
 				$tbody.appendTo($fixedColumn).css({
-					'margin-top': 0,
+					'margin-top': "-0.8px",
 					'height': fixedBodyHeight+2,
 					'background-color': '#ffffff'
 				});
@@ -127,182 +151,291 @@
 				return tabla;
 			}
 		}
-		var helpers  = {
+		var helpers  =
+		{
 			/*
 			* return boolean
 			* valida si el elemento tien un thead y un tbody.
 			*/
-			_EsUnaTabla: function($obj) {
+			_EsUnaTabla: function($obj)
+			{
 				var $tabla = $obj,
 				TieneTable = $tabla.is('table'),
 				TieneThead = $tabla.find('thead').length > 0,
 				TieneTbody = $tabla.find('tbody').length > 0;
 
-				if (TieneTable && TieneThead && TieneTbody) {
+				if (TieneTable && TieneThead && TieneTbody)
+				{
 					return true;
 				}
 
 				return false;
 
 			},
-			_ObtenerAsignarAnchoAlto: function($obj){
+			_ObtenerAsignarAnchoAlto: function($obj)
+			{
 				var $tabla = $obj;
 
-				$tabla.find("tr").each(function(){
+				$tabla.find("tr").each(function()
+				{
 					var $ThTb     = $(this).parent(),
 						esthead   = $ThTb.is("thead"),
 						estbody   = $ThTb.is("tbody"),
 						TipoThTd  = "";
 
-					if (esthead) {
+					if (esthead)
+					{
 						TipoThTd  = "th";
-					} else if(estbody){
+					}
+					else if(estbody)
+					{
 						TipoThTd  = "td";
 					};
 
-					$(this).find(TipoThTd).each(function(){
+					$(this).find(TipoThTd).each(function()
+					{
 						var alto  = $(this).height(),
 							ancho = $(this).width();
 						$(this).css({'width':ancho,'height':alto});
 					});
 				});
 			},
-			_ClonarHeaderColumnasACongelar: function($tabla,$donde,tipothtd,cuantasCols){
+			_ClonarHeaderColumnasACongelar: function($tabla,$donde,tipothtd,cuantasCols)
+			{
 				var ThTd           = "",
 					rowspanAntes   = false,
 					colspanAntes   = false,
 					mascolumnas    = true,
 					cuantosColspan = 0,
-					cuentaColumnas = 1,
+					cuentaColumnas = 0,
 					cuentaRowspan  = 0,
 					cuentafilass   = 0,
 					$trThTd        = $tabla.find(tipothtd),
 					$newRow;
 
-				if (tipothtd == "thead") {
+				if (tipothtd == "thead")
+				{
 					ThTd  = "th";
-				} else if(tipothtd == "tbody"){
+				}
+				else if(tipothtd == "tbody")
+				{
 					ThTd  = "td";
 				};
 
-				$trThTd.find("tr").each(function(){
+				$trThTd.find("tr").each(function()
+				{
+					if ( cuantasCols == 1 )
+					{
+						if (!rowspanAntes)
+						{
+							var tr = $(this).clone(true).html("");
 
-					if (!rowspanAntes) {
-
-						var tr = $(this).clone(true).html("");
-						
-
-						$(this).find(ThTd).each(function(index){
-							
-							if(cuentaColumnas < cuantasCols)
-							if (index < cuantasCols && mascolumnas) {
-
-								if (index == 0) {
-
+							$(this).find(ThTd).each(function(index)
+							{
+								if (index == 0)
+									{
 										$newRow = tr.appendTo($donde.find(tipothtd));
-									if (!colspanAntes) {
-
-										$newRow.append($(this).clone());
-									}
-
-									if ( $(this).attr( "rowspan" ) ) {
-										rowspanAntes  = true;
-										cuentaRowspan = $(this).attr("rowspan");
-									};
-									
-									if ( $(this).attr( "colspan" ) ) {
-										colspanAntes   = true;
-										cuantosColspan = $(this).attr("colspan");
-									}
-									if (colspanAntes) {
-										if (cuantosColspan == cuantasCols) {
-											colspanAntes   = false;
-											mascolumnas    = false;
-											cuentaColumnas = cuantasCols;
-										}else if( (cuantasCols-cuantosColspan) > 0){
-											colspanAntes   = false;
-											mascolumnas    = true;
-											cuentaColumnas = cuantosColspan;
-										}
-									}
-
-								}else{
-
-									if (colspanAntes) {
-										if (cuantosColspan == cuantasCols) {
-											colspanAntes = false;
-											mascolumnas  = false;
-										}else if(cuantosColspan < cuantasCols){
-											colspanAntes = false;
-											mascolumnas  = true;
-										}
-									}else{
 										if (!colspanAntes) {
-											
-											if ( $(this).attr( "colspan" ) ) {
-												colspanAntes   = true;
-												cuantosColspan = $(this).attr("colspan");
-												cuentaColumnas = parseInt(cuentaColumnas) + parseInt(cuantosColspan);
-												
-											}else{
-												cuentaColumnas++;
-											}
 
 											$newRow.append($(this).clone());
+										}
+										else
+										{
+											console.log("Error: colspan in 1 column.");
 										}
 
 										if ( $(this).attr( "rowspan" ) ) {
 											rowspanAntes  = true;
 											cuentaRowspan = $(this).attr("rowspan");
 										};
-
+										
+										if ( $(this).attr( "colspan" ) ) {
+											colspanAntes   = true;
+											cuantosColspan = $(this).attr("colspan");
+										}
 										if (colspanAntes) {
 											if (cuantosColspan == cuantasCols) {
-												colspanAntes   = false;
-												mascolumnas    = false;
-												cuentaColumnas = cuantasCols;
-											}else if(cuentaColumnas == cuantasCols){
 												colspanAntes   = false;
 												mascolumnas    = false;
 												cuentaColumnas = cuantasCols;
 											}else if( (cuantasCols-cuantosColspan) > 0){
 												colspanAntes   = false;
 												mascolumnas    = true;
+												cuentaColumnas = cuantosColspan;
 											}
 										}
-									}								
-								}
+									}
+							});
+
+							colspanAntes   = false;
+							mascolumnas    = true;
+							cuantosColspan = 0;
+							cuentaColumnas = 1;
+
+							if (rowspanAntes) {
+								cuentaRowspan--;
 							}
-						});
-
-						colspanAntes   = false;
-						mascolumnas    = true;
-						cuantosColspan = 0;
-						cuentaColumnas = 1;
-
-						if (rowspanAntes) {
-							cuentaRowspan--;
 						}
-					}else{
-						cuentaRowspan--;
-						var tr = $(this).clone(true).html("");
-						tr.appendTo($donde.find(tipothtd));
-					}
-					if ( cuentaRowspan == 0 ) {
-						rowspanAntes = false;
+						else
+						{
+							cuentaRowspan--;
+							var tr = $(this).clone(true).html("");
+							tr.appendTo($donde.find(tipothtd));
+						}
 
+						if ( cuentaRowspan == 0 )
+						{
+							rowspanAntes = false;
+
+						}
+					}
+					else
+					{
+						if (!rowspanAntes)
+						{
+
+							var tr = $(this).clone(true).html("");
+							
+							$(this).find(ThTd).each(function(index)
+							{
+								if(cuentaColumnas < cuantasCols )
+								if (index < cuantasCols && mascolumnas)
+								{
+									if (index == 0)
+									{
+										$newRow = tr.appendTo($donde.find(tipothtd));
+
+										if (!colspanAntes)
+										{
+											$newRow.append($(this).clone());
+										}
+
+										if ( $(this).attr( "rowspan" ) )
+										{
+											rowspanAntes  = true;
+											cuentaRowspan = $(this).attr("rowspan");
+										};
+										
+										if ( $(this).attr( "colspan" ) )
+										{
+											colspanAntes   = true;
+											cuantosColspan = $(this).attr("colspan");
+										}
+
+										if (colspanAntes)
+										{
+											if (cuantosColspan == cuantasCols)
+											{
+												colspanAntes   = false;
+												mascolumnas    = false;
+												cuentaColumnas = cuantasCols;
+											}
+											else if( (cuantasCols-cuantosColspan) > 0)
+											{
+												colspanAntes   = false;
+												mascolumnas    = true;
+												cuentaColumnas = cuantosColspan;
+											}
+										}
+									}
+									else
+									{
+										if (colspanAntes)
+										{
+											if (cuantosColspan == cuantasCols)
+											{
+												colspanAntes = false;
+												mascolumnas  = false;
+											}
+											else if(cuantosColspan < cuantasCols)
+											{
+												colspanAntes = false;
+												mascolumnas  = true;
+											}
+										}
+										else
+										{
+											if (!colspanAntes)
+											{
+												if ( $(this).attr( "colspan" ) )
+												{
+													colspanAntes   = true;
+													cuantosColspan = $(this).attr("colspan");
+													cuentaColumnas = parseInt(cuentaColumnas) + parseInt(cuantosColspan);
+												}
+												else
+												{
+													cuentaColumnas++;
+												}
+
+												$newRow.append($(this).clone());
+											}
+
+											if ( $(this).attr( "rowspan" ) )
+											{
+												rowspanAntes  = true;
+												cuentaRowspan = $(this).attr("rowspan");
+											};
+
+											if (colspanAntes)
+											{
+												if (cuantosColspan == cuantasCols)
+												{
+													colspanAntes   = false;
+													mascolumnas    = false;
+													cuentaColumnas = cuantasCols;
+												}
+												else if(cuentaColumnas == cuantasCols)
+												{
+													colspanAntes   = false;
+													mascolumnas    = false;
+													cuentaColumnas = cuantasCols;
+												}
+												else if( (cuantasCols-cuantosColspan) > 0)
+												{
+													colspanAntes   = false;
+													mascolumnas    = true;
+												}
+											}
+										}								
+									}
+								}
+							});
+
+							colspanAntes   = false;
+							mascolumnas    = true;
+							cuantosColspan = 0;
+							cuentaColumnas = 1;
+
+							if (rowspanAntes) {
+								cuentaRowspan--;
+							}
+						}
+						else
+						{
+							cuentaRowspan--;
+							var tr = $(this).clone(true).html("");
+							tr.appendTo($donde.find(tipothtd));
+						}
+
+						if ( cuentaRowspan == 0 )
+						{
+							rowspanAntes = false;
+
+						}
 					}
 
 					cuentafilass++;
 				});
 			},
-			_bindScroll: function($obj) {
+			_bindScroll: function($obj)
+			{
 				var $tabla   = $obj,
 					$wrapper = $tabla.closest('.fht-table-wrapper'),
 					$thead   = $tabla.siblings('.fht-thead');
 
-				$tabla.bind('scroll', function() {
-
+				$tabla.bind('scroll', function()
+				{
 					var $fixedColumns = $wrapper.find('.fht-fixed-column');
 
 					$fixedColumns.find('.fht-tbody table').css({
@@ -315,21 +448,23 @@
 
 				});
 			},
-			
-			_OptenerWidthBarraScroll: function() {
+			_OptenerWidthBarraScroll: function()
+			{
 				var scrollbarWidth = 0;
 
-				if (!scrollbarWidth) {
-					if (/msie/.test(navigator.userAgent.toLowerCase())) {
-
+				if (!scrollbarWidth)
+				{
+					if (/msie/.test(navigator.userAgent.toLowerCase()))
+					{
 						var $textarea1 = $('<textarea cols="10" rows="2"></textarea>').css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body'),
 							$textarea2 = $('<textarea cols="10" rows="2" style="overflow: hidden;"></textarea>').css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body');
 
 						scrollbarWidth = $textarea1.width() - $textarea2.width() + 2; 
 						$textarea1.add($textarea2).remove();
 
-					} else {
-
+					}
+					else
+					{
 						var $div = $('<div />').css({ width: 100, height: 100, overflow: 'auto', position: 'absolute', top: -1000, left: -1000 })
 											.prependTo('body').append('<div />').find('div')
 											.css({ width: '100%', height: 200 });
@@ -344,18 +479,17 @@
 			}
 		}
 		
-		if (methods[method]) {
-			
+		if (methods[method])
+		{
 			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-
-		} else if (typeof method === 'object' || !method) {
-
+		}
+		else if (typeof method === 'object' || !method)
+		{
 			return methods.init.apply(this, arguments);
-
-		} else {
-
+		}
+		else
+		{
 			$.error('El Método "' +  method + '" No existe en el plugin congelaheaderunocolumn! :( ');
-
 		}
 	}
 })(jQuery);
