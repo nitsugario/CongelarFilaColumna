@@ -5,6 +5,7 @@
 *
 * Copyright (c) 2016
 * Author: Agustin Rios Reyes.
+* Email:  nitsugario@gmail.com
 *
 * Licensed under MIT
 * http://www.opensource.org/licenses/mit-license.php
