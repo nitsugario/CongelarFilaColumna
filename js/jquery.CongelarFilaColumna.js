@@ -20,7 +20,8 @@
 		{
 			width:      '100%',
 			height:     '100%',
-			NoColumnas:  1 //Number of columns to freeze
+			Columnas:  1, //Number of columns fixed
+			soloThead : false //only the fixed header
 		};
 		var settings = {};
 		var methods  =
@@ -63,8 +64,8 @@
 				settings.scrollbarOffset  = helpers._OptenerWidthBarraScroll();
 				$tabla.css({'width':anchotabla});
 				
-				helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTHCol,'thead',settings.NoColumnas);
-				helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTBCol,'tbody',settings.NoColumnas);
+				helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTHCol,'thead',settings.Columnas);
+				helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTBCol,'tbody',settings.Columnas);
 
 				if (!$tabla.closest('.fht-table-wrapper').length)
 				{
@@ -77,7 +78,8 @@
 				if ( $wrapper.find('.fht-fixed-column').length == 0)
 				{
 					$tabla.wrap('<div class="fht-fixed-body"></div>');
-					$('<div class="fht-fixed-column"></div>').prependTo($wrapper);
+					if( !settings.soloThead )
+						$('<div class="fht-fixed-column"></div>').prependTo($wrapper);
 					$fixedBody    = $wrapper.find('.fht-fixed-body');
 				}
 
@@ -120,29 +122,35 @@
 
 				$tabla.addClass('fht-table-init');
 
-				var $fixedColumn    = $wrapper.find('.fht-fixed-column'),
-					$thead          = $('<div class="fht-thead"></div>').append($tablaTHCol),
+				if( !settings.soloThead )
+					var $fixedColumn    = $wrapper.find('.fht-fixed-column');
+
+				var	$thead          = $('<div class="fht-thead"></div>').append($tablaTHCol),
 					$tbody          = $('<div class="fht-tbody"></div>').append($tablaTBCol),
 					$fixedBody      = $wrapper.find('.fht-fixed-body'),
 					fixedBodyWidth  = $wrapper.width(),
 					fixedBodyHeight = $fixedBody.find('.fht-tbody').outerHeight() - settings.scrollbarOffset;
 
-				$thead.appendTo($fixedColumn);
+				if( !settings.soloThead )
+					$thead.appendTo($fixedColumn);
 
 				var AnchoCol = $thead.find('table').width()+1;
 
 				$thead.find('table').css({'width': AnchoCol});
 				$tbody.find('table').css({'width': AnchoCol});
 
-				$tbody.appendTo($fixedColumn).css({
-					'margin-top': "-0.8px",
-					'height': fixedBodyHeight+2,
-					'background-color': '#ffffff'
-				});
-				
-				$fixedColumn.css({
-					'width':  AnchoCol
-				});
+				if( !settings.soloThead )
+				{
+					$tbody.appendTo($fixedColumn).css({
+						'margin-top': "-0.8px",
+						'height': fixedBodyHeight+2,
+						'background-color': '#ffffff'
+					});
+					
+					$fixedColumn.css({
+						'width':  AnchoCol
+					});
+				}
 				
 				$fixedBody.css({
 					'width': fixedBodyWidth
@@ -171,7 +179,6 @@
 				}
 
 				return false;
-
 			},
 			_ObtenerAsignarAnchoAlto: function($obj)
 			{
@@ -437,11 +444,14 @@
 
 				$tabla.bind('scroll', function()
 				{
-					var $fixedColumns = $wrapper.find('.fht-fixed-column');
+					if( !settings.soloThead )
+					{
+						var $fixedColumns = $wrapper.find('.fht-fixed-column');
 
-					$fixedColumns.find('.fht-tbody table').css({
-						'margin-top': -$tabla.scrollTop()
-					});
+						$fixedColumns.find('.fht-tbody table').css({
+							'margin-top': -$tabla.scrollTop()
+						});
+					}
 
 					$thead.find('table').css({
 						'margin-left': -this.scrollLeft
