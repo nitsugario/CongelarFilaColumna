@@ -26,7 +26,6 @@
 		var settings = {};
 		var methods  =
 		{
-			
 			init: function (options)
 			{
 				settings = $.extend({}, defaults, options);
@@ -47,102 +46,163 @@
 			},
 			setup: function ()
 			{
-				var $wrapper,
-					$tabla      = $(this), 
-					tabla       = this,
-					contenedor  = $(this).parent(), 
-					classT      = $tabla.attr("class"); 
-
-				helpers._ObtenerAsignarAnchoAlto($tabla); 
-
-				var thead       = $tabla.find("thead").clone(),
-					anchotabla  = $tabla.width(),
-					tablaTH     = $("<table>").attr("class",classT).append(thead),
-					$tablaTHCol = $("<table>").attr("class",classT).append($("<thead>")),
-					$tablaTBCol = $("<table>").attr("class",classT).append($("<tbody>"));
-
-				settings.scrollbarOffset  = helpers._OptenerWidthBarraScroll();
-				$tabla.css({'width':anchotabla});
-				
-				helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTHCol,'thead',settings.Columnas);
-				helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTBCol,'tbody',settings.Columnas);
-
-				if (!$tabla.closest('.fht-table-wrapper').length)
+				if ( settings.soloThead )
 				{
-					$tabla.addClass('fht-table');
-					$tabla.wrap('<div class="fht-table-wrapper"></div>');
-				}
+					var $wrapper,
+						$lobTable     = $(this), 
+						lobTable      = this,
+						lstClassTable = $lobTable.attr("class");
+					console.log("Solo Thead");
+					helpers._ObtenerAsignarAnchoAltoThead( $lobTable );
 
-				$wrapper = $tabla.closest('.fht-table-wrapper');
-
-				if ( $wrapper.find('.fht-fixed-column').length == 0)
-				{
-					$tabla.wrap('<div class="fht-fixed-body"></div>');
-					if( !settings.soloThead )
-						$('<div class="fht-fixed-column"></div>').prependTo($wrapper);
-					$fixedBody    = $wrapper.find('.fht-fixed-body');
-				}
-
-				$wrapper.css({
-					width: settings.width,
-					height: settings.height
-				});
-
-				if (!$tabla.hasClass('fht-table-init'))
-				{
-					$tabla.wrap('<div class="fht-tbody"><div class="fht-tbody-conten"></div></div>');
-				}
-
-				$tabla.closest('.fht-tbody-conten').css({'width':anchotabla});
-				$divBody = $wrapper.find('div.fht-tbody');
-
-				if (!$tabla.hasClass('fht-table-init'))
-				{
-
-					$divHead = $('<div class="fht-thead"></div>').prependTo($fixedBody).css({'width':anchotabla});
+					var lobThead       = $lobTable.find("thead").clone(),
+						lnuWidthTable  = $lobTable.width(),
+						lobTableThead  = $("<table>").attr("class",lstClassTable).append(lobThead);
+						
 					
-					tablaTH.css({'width':anchotabla});
+					settings.scrollbarOffset  = helpers._OptenerWidthBarraScroll();
+					$lobTable.css({'width':lnuWidthTable});
 
-					$divHead.append(tablaTH).css({'width':anchotabla});
+					if (!$lobTable.closest('.fht-table-wrapper').length)
+					{
+						$lobTable.addClass('fht-table');
+						$lobTable.wrap('<div class="fht-table-wrapper"></div>');
+					}
+
+					$wrapper   = $lobTable.closest('.fht-table-wrapper');
+
+					if ( $wrapper.find('.fht-fixed-body').length == 0)
+						$lobTable.wrap('<div class="fht-fixed-body"></div>');
+
+					$fixedBody = $wrapper.find('.fht-fixed-body');
+
+					$wrapper.css({
+						width: settings.width,
+						height: settings.height
+					});
+
+					/*Agregamos la tabla completa a fht-tbody-conten*/
+					$lobTable.wrap('<div class="fht-tbody"><div class="fht-tbody-conten"></div></div>');
+					$lobTable.closest('.fht-tbody-conten').css({'width':lnuWidthTable});
+					$lobDivBody  = $wrapper.find('div.fht-tbody');
+
+					/*Agregamos el encabesado clonado al div fht-thead*/
+					$lobDivTHead = $('<div class="fht-thead"></div>').prependTo($fixedBody).css({'width':lnuWidthTable});
+					lobTableThead.css({'width':lnuWidthTable});
+					$lobDivTHead.append(lobTableThead).css({'width':lnuWidthTable});
+
+					$lobTable.css({
+						'margin-top': -$lobDivTHead.outerHeight(true)
+					});
+
+					var lnuTbodyHeight = $wrapper.height() - $lobDivTHead.outerHeight(true);
+
+					$lobDivBody.css({
+						'height': lnuTbodyHeight,
+						'width':lnuWidthTable+settings.scrollbarOffset+2
+					});
+
+					helpers._bindScroll( $lobDivBody );
+
+					return lobTable;
 				}
 				else
 				{
-					$divHead = $wrapper.find('div.fht-thead');
-				}
+					var $wrapper,
+						$tabla      = $(this), 
+						tabla       = this,
+						contenedor  = $(this).parent(), 
+						classT      = $tabla.attr("class"); 
 
-				$tabla.css({
-					'margin-top': -$divHead.outerHeight(true)
-				});
+					helpers._ObtenerAsignarAnchoAlto($tabla); 
 
-				var tbodyHeight = $wrapper.height() - $divHead.outerHeight(true);
+					var thead       = $tabla.find("thead").clone(),
+						anchotabla  = $tabla.width(),
+						tablaTH     = $("<table>").attr("class",classT).append(thead),
+						$tablaTHCol = $("<table>").attr("class",classT).append($("<thead>")),
+						$tablaTBCol = $("<table>").attr("class",classT).append($("<tbody>"));
 
-				$divBody.css({
-					'height': tbodyHeight
-				});
+					settings.scrollbarOffset  = helpers._OptenerWidthBarraScroll();
+					$tabla.css({'width':anchotabla});
+					
+					tablaTH.addClass('fht-table');
+					$tablaTHCol.addClass('fht-table');
+					$tablaTBCol.addClass('fht-table');
+					
+					helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTHCol,'thead',settings.Columnas);
+					helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTBCol,'tbody',settings.Columnas);
 
-				$tabla.addClass('fht-table-init');
+					if (!$tabla.closest('.fht-table-wrapper').length)
+					{
+						$tabla.addClass('fht-table');
+						$tabla.wrap('<div class="fht-table-wrapper"></div>');
+					}
 
-				if( !settings.soloThead )
+					$wrapper = $tabla.closest('.fht-table-wrapper');
+
+					if ( $wrapper.find('.fht-fixed-column').length == 0)
+					{
+						$tabla.wrap('<div class="fht-fixed-body"></div>');
+						$('<div class="fht-fixed-column"></div>').prependTo($wrapper);
+						$fixedBody    = $wrapper.find('.fht-fixed-body');
+					}
+
+					$wrapper.css({
+						width: settings.width,
+						height: settings.height
+					});
+
+					if (!$tabla.hasClass('fht-table-init'))
+					{
+						$tabla.wrap('<div class="fht-tbody"><div class="fht-tbody-conten"></div></div>');
+					}
+
+					$tabla.closest('.fht-tbody-conten').css({'width':anchotabla});
+					$divBody = $wrapper.find('div.fht-tbody');
+
+					if (!$tabla.hasClass('fht-table-init'))
+					{
+
+						$divHead = $('<div class="fht-thead"></div>').prependTo($fixedBody).css({'width':anchotabla});
+						
+						tablaTH.css({'width':anchotabla});
+
+						$divHead.append(tablaTH).css({'width':anchotabla});
+					}
+					else
+					{
+						$divHead = $wrapper.find('div.fht-thead');
+					}
+
+					$tabla.css({
+						//'margin-top': -$divHead.outerHeight(true)
+						'margin-top': -$tabla.find('thead').outerHeight(true)
+					});
+
+					var tbodyHeight = $wrapper.height() - $divHead.outerHeight(true);
+
+					$divBody.css({
+						'height': tbodyHeight
+					});
+
+					$tabla.addClass('fht-table-init');
+
 					var $fixedColumn    = $wrapper.find('.fht-fixed-column');
 
-				var	$thead          = $('<div class="fht-thead"></div>').append($tablaTHCol),
-					$tbody          = $('<div class="fht-tbody"></div>').append($tablaTBCol),
-					$fixedBody      = $wrapper.find('.fht-fixed-body'),
-					fixedBodyWidth  = $wrapper.width(),
-					fixedBodyHeight = $fixedBody.find('.fht-tbody').outerHeight() - settings.scrollbarOffset;
+					var	$thead          = $('<div class="fht-thead"></div>').append($tablaTHCol),
+						$tbody          = $('<div class="fht-tbody"></div>').append($tablaTBCol),
+						$fixedBody      = $wrapper.find('.fht-fixed-body'),
+						fixedBodyWidth  = $wrapper.width(),
+						fixedBodyHeight = $fixedBody.find('.fht-tbody').outerHeight() - settings.scrollbarOffset;
 
-				if( !settings.soloThead )
 					$thead.appendTo($fixedColumn);
 
-				var AnchoCol = $thead.find('table').width()+1;
+					var AnchoCol = $thead.find('table').width()+1;
 
-				$thead.find('table').css({'width': AnchoCol});
-				$tbody.find('table').css({'width': AnchoCol});
+					$thead.find('table').css({'width': AnchoCol,'height':$divHead.outerHeight(true)});
+					$tbody.find('table').css({'width': AnchoCol});
 
-				if( !settings.soloThead )
-				{
 					$tbody.appendTo($fixedColumn).css({
-						'margin-top': "-0.8px",
 						'height': fixedBodyHeight+2,
 						'background-color': '#ffffff'
 					});
@@ -150,14 +210,14 @@
 					$fixedColumn.css({
 						'width':  AnchoCol
 					});
-				}
-				
-				$fixedBody.css({
-					'width': fixedBodyWidth
-				});
+					
+					$fixedBody.css({
+						'width': fixedBodyWidth
+					});
 
-				helpers._bindScroll($divBody);
-				return tabla;
+					helpers._bindScroll($divBody);
+					return tabla;
+				};
 			}
 		}
 		var helpers  =
@@ -180,32 +240,226 @@
 
 				return false;
 			},
+			_ObtenerAsignarAnchoAltoThead: function($obj)
+			{
+				var $lobTable = $obj;
+
+				$lobTable.find("thead tr").each(function()
+				{
+					$(this).find("th").each(function()
+					{
+						$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
+					});
+				});
+			},
 			_ObtenerAsignarAnchoAlto: function($obj)
 			{
-				var $tabla = $obj;
+				var $tabla         = $obj,
+					ThTd           = "",
+					rowspanAntes   = false,
+					colspanAntes   = false,
+					mascolumnas    = true,
+					cuantosColspan = 0,
+					cuentaColumnas = 0,
+					cuentaRowspan  = 0,
+					cuentafilass   = 0,
+					cuantasCols    = settings.Columnas;
 
-				$tabla.find("tr").each(function()
+				$tabla.find("tr").each(function(fila)
 				{
-					var $ThTb     = $(this).parent(),
-						esthead   = $ThTb.is("thead"),
-						estbody   = $ThTb.is("tbody"),
-						TipoThTd  = "";
+					var ThTd       = ( $(this).parent().is('thead') ) ? 'th' : ( $(this).parent().is('tbody') ) ? 'td' : 'undefined';
 
-					if (esthead)
+					if ( cuantasCols == 1 )
 					{
-						TipoThTd  = "th";
+						if (!rowspanAntes)
+						{
+							$(this).find(ThTd).each(function(index)
+							{
+								if (index == 0)
+									{
+										if (!colspanAntes) {
+											//$(this).css({'background-color': '#F7F2E0'});
+											$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
+										}
+										else
+										{
+											console.log("Error: colspan in 1 column.");
+										}
+
+										if ( $(this).attr( "rowspan" ) ) {
+											rowspanAntes  = true;
+											cuentaRowspan = $(this).attr("rowspan");
+										};
+										
+										if ( $(this).attr( "colspan" ) ) {
+											colspanAntes   = true;
+											cuantosColspan = $(this).attr("colspan");
+										}
+										if (colspanAntes) {
+											if (cuantosColspan == cuantasCols) {
+												colspanAntes   = false;
+												mascolumnas    = false;
+												cuentaColumnas = cuantasCols;
+											}else if( (cuantasCols-cuantosColspan) > 0){
+												colspanAntes   = false;
+												mascolumnas    = true;
+												cuentaColumnas = cuantosColspan;
+											}
+										}
+									}
+							});
+
+							colspanAntes   = false;
+							mascolumnas    = true;
+							cuantosColspan = 0;
+							cuentaColumnas = 1;
+
+							if (rowspanAntes) {
+								cuentaRowspan--;
+							}
+						}
+						else
+						{
+							cuentaRowspan--;
+						}
+
+						if ( cuentaRowspan == 0 )
+						{
+							rowspanAntes = false;
+
+						}
 					}
-					else if(estbody)
+					else
 					{
-						TipoThTd  = "td";
-					};
+						if (!rowspanAntes)
+						{							
+							$(this).find(ThTd).each(function(index)
+							{
+								if(cuentaColumnas < cuantasCols )
+								if (index < cuantasCols && mascolumnas)
+								{
+									if (index == 0)
+									{
+										if (!colspanAntes)
+										{
+											//$(this).css({'background-color': '#F7F2E0'});
+											$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
+										}
 
-					$(this).find(TipoThTd).each(function()
-					{
-						var alto  = $(this).height(),
-							ancho = $(this).width();
-						$(this).css({'width':ancho,'height':alto});
-					});
+										if ( $(this).attr( "rowspan" ) )
+										{
+											rowspanAntes  = true;
+											cuentaRowspan = $(this).attr("rowspan");
+										};
+										
+										if ( $(this).attr( "colspan" ) )
+										{
+											colspanAntes   = true;
+											cuantosColspan = $(this).attr("colspan");
+										}
+
+										if (colspanAntes)
+										{
+											if (cuantosColspan == cuantasCols)
+											{
+												colspanAntes   = false;
+												mascolumnas    = false;
+												cuentaColumnas = cuantasCols;
+											}
+											else if( (cuantasCols-cuantosColspan) > 0)
+											{
+												colspanAntes   = false;
+												mascolumnas    = true;
+												cuentaColumnas = cuantosColspan;
+											}
+										}
+									}
+									else
+									{
+										if (colspanAntes)
+										{
+											if (cuantosColspan == cuantasCols)
+											{
+												colspanAntes = false;
+												mascolumnas  = false;
+											}
+											else if(cuantosColspan < cuantasCols)
+											{
+												colspanAntes = false;
+												mascolumnas  = true;
+											}
+										}
+										else
+										{
+											if (!colspanAntes)
+											{
+												if ( $(this).attr( "colspan" ) )
+												{
+													colspanAntes   = true;
+													cuantosColspan = $(this).attr("colspan");
+													cuentaColumnas = parseInt(cuentaColumnas) + parseInt(cuantosColspan);
+												}
+												else
+												{
+													cuentaColumnas++;
+												}
+												//$(this).css({'background-color': '#F7F2E0'});
+												$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
+											}
+
+											if ( $(this).attr( "rowspan" ) )
+											{
+												rowspanAntes  = true;
+												cuentaRowspan = $(this).attr("rowspan");
+											};
+
+											if (colspanAntes)
+											{
+												if (cuantosColspan == cuantasCols)
+												{
+													colspanAntes   = false;
+													mascolumnas    = false;
+													cuentaColumnas = cuantasCols;
+												}
+												else if(cuentaColumnas == cuantasCols)
+												{
+													colspanAntes   = false;
+													mascolumnas    = false;
+													cuentaColumnas = cuantasCols;
+												}
+												else if( (cuantasCols-cuantosColspan) > 0)
+												{
+													colspanAntes   = false;
+													mascolumnas    = true;
+												}
+											}
+										}								
+									}
+								}
+							});
+
+							colspanAntes   = false;
+							mascolumnas    = true;
+							cuantosColspan = 0;
+							cuentaColumnas = 1;
+
+							if (rowspanAntes) {
+								cuentaRowspan--;
+							}
+						}
+						else
+						{
+							cuentaRowspan--;
+						}
+
+						if ( cuentaRowspan == 0 )
+						{
+							rowspanAntes = false;
+
+						}
+					}
+
+					cuentafilass++;
 				});
 			},
 			_ClonarHeaderColumnasACongelar: function($tabla,$donde,tipothtd,cuantasCols)
@@ -253,8 +507,11 @@
 										}
 
 										if ( $(this).attr( "rowspan" ) ) {
-											rowspanAntes  = true;
-											cuentaRowspan = $(this).attr("rowspan");
+											if ( $(this).attr( "rowspan" ) > 0 )
+											{
+												rowspanAntes  = true;
+												cuentaRowspan = $(this).attr("rowspan");
+											}
 										};
 										
 										if ( $(this).attr( "colspan" ) ) {
@@ -320,8 +577,11 @@
 
 										if ( $(this).attr( "rowspan" ) )
 										{
-											rowspanAntes  = true;
-											cuentaRowspan = $(this).attr("rowspan");
+											if ( $(this).attr( "rowspan" ) > 0 )
+											{
+												rowspanAntes  = true;
+												cuentaRowspan = $(this).attr("rowspan");
+											}
 										};
 										
 										if ( $(this).attr( "colspan" ) )
@@ -381,8 +641,11 @@
 
 											if ( $(this).attr( "rowspan" ) )
 											{
-												rowspanAntes  = true;
-												cuentaRowspan = $(this).attr("rowspan");
+												if ( $(this).attr( "rowspan" ) > 0 )
+												{
+													rowspanAntes  = true;
+													cuentaRowspan = $(this).attr("rowspan");
+												}
 											};
 
 											if (colspanAntes)
