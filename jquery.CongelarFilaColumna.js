@@ -3,9 +3,11 @@
 * Scrolling can be enabled. Both rows and columns can be frozen. Rows to be frozen 
 * should be placed in 'thead' (whole frozen header). You can freeze rows and columns combined with colspan or rowspan.
 *
+*
 * Copyright (c) 2016
 * Author: Agustin Rios Reyes.
 * Email:  nitsugario@gmail.com
+* Github: https://github.com/nitsugario/jQuery-Freeze-Table-Column-and-Rows
 *
 * Licensed under MIT
 * http://www.opensource.org/licenses/mit-license.php
@@ -21,7 +23,8 @@
 			width:      '100%',
 			height:     '100%',
 			Columnas:  1, //Number of columns fixed
-			soloThead : false //only the fixed header
+			soloThead : false, //only the fixed header
+			tfoot: false
 		};
 		var settings = {};
 		var methods  =
@@ -131,6 +134,12 @@
 					
 					helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTHCol,'thead',settings.Columnas);
 					helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTBCol,'tbody',settings.Columnas);
+
+					if( settings.tfoot)
+					{
+						$tablaTBCol.append($("<tfoot>"));
+						helpers._ClonarHeaderColumnasACongelar($tabla,$tablaTBCol,'tfoot',settings.Columnas);
+					}
 
 					if (!$tabla.closest('.fht-table-wrapper').length)
 					{
@@ -267,7 +276,7 @@
 
 				$tabla.find("tr").each(function(fila)
 				{
-					var ThTd       = ( $(this).parent().is('thead') ) ? 'th' : ( $(this).parent().is('tbody') ) ? 'td' : 'undefined';
+					var ThTd       = ( $(this).parent().is('thead') ) ? 'th' : ( $(this).parent().is('tbody') ) ? 'td' : ( $(this).parent().is('tfoot') ) ? 'td' : 'undefined';
 
 					if ( cuantasCols == 1 )
 					{
@@ -407,6 +416,13 @@
 												$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
 											}
 
+											if ( $(this).attr( "colspan" ) )
+											{
+												colspanAntes   = true;
+												cuantosColspan = $(this).attr("colspan");
+												cuentaColumnas = parseInt(cuentaColumnas) + parseInt(cuantosColspan);
+											}
+
 											if ( $(this).attr( "rowspan" ) )
 											{
 												rowspanAntes  = true;
@@ -479,7 +495,7 @@
 				{
 					ThTd  = "th";
 				}
-				else if(tipothtd == "tbody")
+				else if(tipothtd == "tbody" || tipothtd =='tfoot')
 				{
 					ThTd  = "td";
 				};
@@ -637,6 +653,13 @@
 												}
 
 												$newRow.append($(this).clone());
+											}
+
+											if ( $(this).attr( "colspan" ) )
+											{
+												colspanAntes   = true;
+												cuantosColspan = $(this).attr("colspan");
+												cuentaColumnas = parseInt(cuentaColumnas) + parseInt(cuantosColspan);
 											}
 
 											if ( $(this).attr( "rowspan" ) )
