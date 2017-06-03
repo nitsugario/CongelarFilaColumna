@@ -5,26 +5,6 @@
 	border:0;
 }
 
-.header, .main {
-    display: inline-block;
-    height: auto;
-    width: 100%;
-}
-.titulosHeader {
-    border-bottom: 1px solid #e8bb25;
-    height: auto;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    padding-top: 8px;
-    width: 100%;
-}
-.ContenedorTabla {
-	height: 400px;
-	margin: 0 auto;
-	overflow: auto;
-	width: 1024px;
-	position: relative;
-}
 .fht-table,
 .fht-table thead,
 .fht-table tfoot,
@@ -36,21 +16,18 @@
 }
 
 .fht-table{
+	border: 0 none;
 	height: auto;
 	width: auto;
 	border-collapse: collapse;
 	border-spacing: 0;
-	table-layout: fixed;
-	border: 0 none;
+	/*table-layout: fixed;  Algoritmo de distribucion fijo */
+    /*white-space:nowrap;   Impide los saltos de línea automáticos */
 }
 
 .fht-table th,.fht-table td {
     overflow: hidden;
 }
-
-/*.fht-table th,.fht-table td{
-	width: 110px;
-}*/
 
 .fht-table-wrapper,
 .fht-table-wrapper .fht-thead,
@@ -87,6 +64,32 @@
 	margin-right: 20px;
 	border: 0 none;
 }
+
+/*For Examples*/
+
+.ContenedorTabla {
+	height: 400px;
+	margin: 0 auto;
+	overflow: auto;
+	width: 1024px;
+	position: relative;
+}
+
+.header, .main {
+    display: inline-block;
+    height: auto;
+    width: 100%;
+}
+.titulosHeader {
+    border-bottom: 1px solid #e8bb25;
+    height: auto;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    padding-top: 8px;
+    width: 100%;
+} 
+
+
 .celda_encabezado_general {
     background-color: #003399;
     border: 1px solid #ccc;
@@ -106,7 +109,7 @@
 	width: 4px;
 }
 .celda_normal {
-    background-color: #fff;
+    /*background-color: #fff;*/
     border: 1px solid #ccc;
     padding: 2px 4px;
 }
