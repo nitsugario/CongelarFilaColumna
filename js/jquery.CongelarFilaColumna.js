@@ -4,15 +4,17 @@
 * should be placed in 'thead' (whole frozen header). You can freeze rows and columns combined with colspan or rowspan.
 *
 *
-* Copyright (c) 2016
-* Author: Agustin Rios Reyes.
-* Email:  nitsugario@gmail.com
-* Github: https://github.com/nitsugario/jQuery-Freeze-Table-Column-and-Rows
+* Copyright (c) 2017
+* Author:  Agustin Rios Reyes.
+* Email:   nitsugario@gmail.com
+* Github:  https://github.com/nitsugario/jQuery-Freeze-Table-Column-and-Rows
+* Versión: 2.2
 *
 * Licensed under MIT
 * http://www.opensource.org/licenses/mit-license.php
 *
 */
+
 (function($)
 {
 	$.fn.CongelarFilaColumna = function (method)
@@ -20,11 +22,14 @@
 		
 		var defaults =
 		{
-			width:      '100%',
-			height:     '100%',
-			Columnas:  1, //Number of columns fixed
-			soloThead : false, //only the fixed header
-			tfoot: false
+			width:        '100%',
+			height:       '100%',
+			Columnas:     1,      //Number of columns fixed
+			soloThead :   false,  //only the fixed header
+			coloreacelda: false,
+			colorcelda:   '#F4FA58',
+			lboHoverTr:   false,
+			tfoot:        false
 		};
 		var settings = {};
 		var methods  =
@@ -55,7 +60,7 @@
 						$lobTable     = $(this), 
 						lobTable      = this,
 						lstClassTable = $lobTable.attr("class");
-					console.log("Solo Thead");
+
 					helpers._ObtenerAsignarAnchoAltoThead( $lobTable );
 
 					var lobThead       = $lobTable.find("thead").clone(),
@@ -105,7 +110,7 @@
 						'width':lnuWidthTable+settings.scrollbarOffset+2
 					});
 
-					helpers._bindScroll( $lobDivBody );
+					helpers._OnScroll( $lobDivBody );
 
 					return lobTable;
 				}
@@ -184,7 +189,6 @@
 					}
 
 					$tabla.css({
-						//'margin-top': -$divHead.outerHeight(true)
 						'margin-top': -$tabla.find('thead').outerHeight(true)
 					});
 
@@ -224,16 +228,17 @@
 						'width': fixedBodyWidth
 					});
 
-					helpers._bindScroll($divBody);
+					helpers._OnScroll($divBody);
+
 					return tabla;
 				};
 			}
-		}
+		};
 		var helpers  =
 		{
 			/*
-			* return boolean
-			* valida si el elemento tien un thead y un tbody.
+				* return boolean
+				* valida si el elemento tien un thead y un tbody.
 			*/
 			_EsUnaTabla: function($obj)
 			{
@@ -257,478 +262,319 @@
 				{
 					$(this).find("th").each(function()
 					{
+						if( settings.coloreacelda )
+							$(this).css({'background-color': settings.colorcelda});
+
 						$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
 					});
 				});
 			},
 			_ObtenerAsignarAnchoAlto: function($obj)
 			{
-				var $tabla         = $obj,
-					ThTd           = "",
-					rowspanAntes   = false,
-					colspanAntes   = false,
-					mascolumnas    = true,
-					cuantosColspan = 0,
-					cuentaColumnas = 0,
-					cuentaRowspan  = 0,
-					cuentafilass   = 0,
-					cuantasCols    = settings.Columnas;
+				var $tabla                 = $obj,
+					lstTipoThTd            = "",
+					lnuCuentaColumnasFila  = 1,
+					lnuColumnasFijas       = settings.Columnas,
+					lboRowspan             = false,
+					lboColspan             = false,
+					lboMasColumnas         = true,
+					lboFaltaColumnaFila    = false,
+					lnuCuantosColspan      = 0,
+					lnuCuentaColspan       = 0,
+					lnuCuantosRowspan      = 0,
+					lnuCuentaRowspan       = 0,
+					lnuCuentaRowspanFaltan = 0;
 
-				$tabla.find("tr").each(function(fila)
+				$tabla.find("tr").each(function(lnuFila)
 				{
-					var ThTd       = ( $(this).parent().is('thead') ) ? 'th' : ( $(this).parent().is('tbody') ) ? 'td' : ( $(this).parent().is('tfoot') ) ? 'td' : 'undefined';
+					lstTipoThTd = ( $(this).parent().is('thead') ) ? 'th' : ( $(this).parent().is('tbody') ) ? 'td' : ( $(this).parent().is('tfoot') ) ? 'td' : 'undefined';
 
-					if ( cuantasCols == 1 )
+					//-- Asignar un identificador a las filas, si no lo tienen.
+					if( $(this).parent().is('tbody') || $(this).parent().is('tfoot') )
 					{
-						if (!rowspanAntes)
+						lstSigla = ( $(this).parent().is('thead') ) ? 'th' : ( $(this).parent().is('tbody') ) ? 'tb' : ( $(this).parent().is('tfoot') ) ? 'tf' : 'undefined';
+						lstIdTr  = lstSigla+lnuFila;
+
+						if( settings.lboHoverTr )
+							if( !$(this).attr("id") )
+								$(this).attr("id",lstIdTr);
+					}
+
+					if ( !lboRowspan )
+					{
+						$(this).find( lstTipoThTd ).each(function(lnuCell)
 						{
-							$(this).find(ThTd).each(function(index)
+							if ( lnuCuentaColumnasFila <= lnuColumnasFijas )
 							{
-								if (index == 0)
+								if ( $(this).attr("rowspan") )
+								{
+									if ( $(this).attr( "colspan" ) )
+										lnuCuentaRowspan = lnuCuentaRowspan-parseInt($(this).attr( "colspan" ))-1;
+									else
+										lnuCuentaRowspan++;
+
+									if( lnuCuantosRowspan < $(this).attr("rowspan") )
 									{
-										if (!colspanAntes) {
-											//$(this).css({'background-color': '#F7F2E0'});
-											$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
-										}
-										else
-										{
-											console.log("Error: colspan in 1 column.");
-										}
-
-										if ( $(this).attr( "rowspan" ) ) {
-											rowspanAntes  = true;
-											cuentaRowspan = $(this).attr("rowspan");
-										};
-										
-										if ( $(this).attr( "colspan" ) ) {
-											colspanAntes   = true;
-											cuantosColspan = $(this).attr("colspan");
-										}
-										if (colspanAntes) {
-											if (cuantosColspan == cuantasCols) {
-												colspanAntes   = false;
-												mascolumnas    = false;
-												cuentaColumnas = cuantasCols;
-											}else if( (cuantasCols-cuantosColspan) > 0){
-												colspanAntes   = false;
-												mascolumnas    = true;
-												cuentaColumnas = cuantosColspan;
-											}
-										}
+										lnuCuantosRowspan = $(this).attr("rowspan")-1;
+										lboFaltaColumnaFila   = true;
 									}
-							});
+									else
+										lboFaltaColumnaFila   = true;
 
-							colspanAntes   = false;
-							mascolumnas    = true;
-							cuantosColspan = 0;
-							cuentaColumnas = 1;
+									lnuCuentaRowspanFaltan = $(this).attr("rowspan")-1;
+									lboRowspan             = true;
+								}
 
-							if (rowspanAntes) {
-								cuentaRowspan--;
+								if ( $(this).attr( "colspan" ) )
+									lnuCuentaColumnasFila += parseInt($(this).attr( "colspan" ));
+								else
+									lnuCuentaColumnasFila++;
+								
+								if( settings.coloreacelda )
+									$(this).css({'background-color': settings.colorcelda});
+
+								$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
 							}
-						}
-						else
-						{
-							cuentaRowspan--;
-						}
+						});
 
-						if ( cuentaRowspan == 0 )
-						{
-							rowspanAntes = false;
+						lnuCuentaColumnasFila = 1;
 
-						}
+						if( lboRowspan )
+							lnuCuantosRowspan--;
 					}
 					else
 					{
-						if (!rowspanAntes)
-						{							
-							$(this).find(ThTd).each(function(index)
+						var lnuFaltan = lnuColumnasFijas - lnuCuentaRowspan;
+							lnuCuentaRowspanFaltan--;
+
+						if ( lnuCuantosRowspan-- <= 0 )
+						{
+							lboRowspan        = false;
+							lnuCuentaRowspan  = 0;
+
+							if( lnuFaltan > 0 )
 							{
-								if(cuentaColumnas < cuantasCols )
-								if (index < cuantasCols && mascolumnas)
+								lnuCuentaColumnasFila3 = 1;
+								lnuColumnasFijas3      = lnuFaltan;
+
+								$(this).find( lstTipoThTd ).each(function(lnuCell)
 								{
-									if (index == 0)
+									if ( lnuCuentaColumnasFila3 <= lnuColumnasFijas3 )
 									{
-										if (!colspanAntes)
-										{
-											//$(this).css({'background-color': '#F7F2E0'});
-											$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
-										}
-
-										if ( $(this).attr( "rowspan" ) )
-										{
-											rowspanAntes  = true;
-											cuentaRowspan = $(this).attr("rowspan");
-										};
-										
 										if ( $(this).attr( "colspan" ) )
-										{
-											colspanAntes   = true;
-											cuantosColspan = $(this).attr("colspan");
-										}
-
-										if (colspanAntes)
-										{
-											if (cuantosColspan == cuantasCols)
-											{
-												colspanAntes   = false;
-												mascolumnas    = false;
-												cuentaColumnas = cuantasCols;
-											}
-											else if( (cuantasCols-cuantosColspan) > 0)
-											{
-												colspanAntes   = false;
-												mascolumnas    = true;
-												cuentaColumnas = cuantosColspan;
-											}
-										}
-									}
-									else
-									{
-										if (colspanAntes)
-										{
-											if (cuantosColspan == cuantasCols)
-											{
-												colspanAntes = false;
-												mascolumnas  = false;
-											}
-											else if(cuantosColspan < cuantasCols)
-											{
-												colspanAntes = false;
-												mascolumnas  = true;
-											}
-										}
+											lnuCuentaColumnasFila3 += parseInt($(this).attr( "colspan" ));
 										else
-										{
-											if (!colspanAntes)
-											{
-												if ( $(this).attr( "colspan" ) )
-												{
-													colspanAntes   = true;
-													cuantosColspan = $(this).attr("colspan");
-													cuentaColumnas = parseInt(cuentaColumnas) + parseInt(cuantosColspan);
-												}
-												else
-												{
-													cuentaColumnas++;
-												}
-												//$(this).css({'background-color': '#F7F2E0'});
-												$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
-											}
+											lnuCuentaColumnasFila3++;
+										
+										if( settings.coloreacelda )
+											$(this).css({'background-color': settings.colorcelda});
 
-											if ( $(this).attr( "colspan" ) )
-											{
-												colspanAntes   = true;
-												cuantosColspan = $(this).attr("colspan");
-												cuentaColumnas = parseInt(cuentaColumnas) + parseInt(cuantosColspan);
-											}
-
-											if ( $(this).attr( "rowspan" ) )
-											{
-												rowspanAntes  = true;
-												cuentaRowspan = $(this).attr("rowspan");
-											};
-
-											if (colspanAntes)
-											{
-												if (cuantosColspan == cuantasCols)
-												{
-													colspanAntes   = false;
-													mascolumnas    = false;
-													cuentaColumnas = cuantasCols;
-												}
-												else if(cuentaColumnas == cuantasCols)
-												{
-													colspanAntes   = false;
-													mascolumnas    = false;
-													cuentaColumnas = cuantasCols;
-												}
-												else if( (cuantasCols-cuantosColspan) > 0)
-												{
-													colspanAntes   = false;
-													mascolumnas    = true;
-												}
-											}
-										}								
+										$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
 									}
-								}
-							});
+								});
 
-							colspanAntes   = false;
-							mascolumnas    = true;
-							cuantosColspan = 0;
-							cuentaColumnas = 1;
-
-							if (rowspanAntes) {
-								cuentaRowspan--;
-							}
+								lnuCuentaColumnasFila3 = 1;
+							}				
 						}
 						else
 						{
-							cuentaRowspan--;
+							lnuCuentaColumnasFila2 = 1;
+							lnuColumnasFijas2      = lnuFaltan;
+
+							$(this).find( lstTipoThTd ).each(function(lnuCell)
+							{
+								if ( lnuCuentaColumnasFila2 <= lnuColumnasFijas2 )
+								{
+									if ( $(this).attr( "colspan" ) )
+										lnuCuentaColumnasFila2 += parseInt($(this).attr( "colspan" ));
+									else
+										lnuCuentaColumnasFila2++;
+									
+									if( settings.coloreacelda )
+										$(this).css({'background-color': settings.colorcelda});
+
+									$(this).css({'width':$(this).width(),'height':$(this).height(),'overflow': 'hidden'});
+								}
+							});
+
+							lnuCuentaColumnasFila2 = 1;
 						}
-
-						if ( cuentaRowspan == 0 )
-						{
-							rowspanAntes = false;
-
-						}
-					}
-
-					cuentafilass++;
+						
+					};
 				});
 			},
-			_ClonarHeaderColumnasACongelar: function($tabla,$donde,tipothtd,cuantasCols)
+			_ClonarHeaderColumnasACongelar: function($pobTabla,$ponDonde,pstTipoThTbTf,pnuCuantasCols)
 			{
-				var ThTd           = "",
-					rowspanAntes   = false,
-					colspanAntes   = false,
-					mascolumnas    = true,
-					cuantosColspan = 0,
-					cuentaColumnas = 0,
-					cuentaRowspan  = 0,
-					cuentafilass   = 0,
-					$trThTd        = $tabla.find(tipothtd),
-					$newRow;
+				var lnuCuentaColumnasFila  = 1,
+					lnuColumnasFijas       = pnuCuantasCols,
+					lboRowspan             = false,
+					lboColspan             = false,
+					lboMasColumnas         = true,
+					lboFaltaColumnaFila    = false,
+					lnuCuantosColspan      = 0,
+					lnuCuentaColspan       = 0,
+					lnuCuantosRowspan      = 0,
+					lnuCuentaRowspan       = 0,
+					lnuCuentaRowspanFaltan = 0,
+					$lobTrThTd             = $pobTabla.find(pstTipoThTbTf),
+					lstTipoThTd            = (pstTipoThTbTf == "thead") ? "th" : (pstTipoThTbTf == "tbody" || pstTipoThTbTf =='tfoot') ? "td" : "td",
+					$lobClonarTrThTd;
 
-				if (tipothtd == "thead")
+				$lobTrThTd.find("tr").each(function(lnuFila)
 				{
-					ThTd  = "th";
-				}
-				else if(tipothtd == "tbody" || tipothtd =='tfoot')
-				{
-					ThTd  = "td";
-				};
+					if( settings.lboHoverTr )// Asignar el evento hover a las filas para marcarlas.
+						if( pstTipoThTbTf =='tbody' || pstTipoThTbTf =='tfoot' )
+						{
+							$(this).hover(
+								function()
+								{
+									lstIdTr = "#"+$(this).attr("id");
+									$(this).css( "background", "rgba(182,227,250,0.6)" );
+									$(lstIdTr).css( "background", "rgba(182,227,250,0.6)" );
+								},
+								function() {
+									lstIdTr = "#"+$(this).attr("id");
+									$(this).css( "background", "" );
+									$(lstIdTr).css( "background", "" );
+								}
+							);
+						}
 
-				$trThTd.find("tr").each(function()
-				{
-					if ( cuantasCols == 1 )
+					if ( !lboRowspan )
 					{
-						if (!rowspanAntes)
-						{
-							var tr = $(this).clone(true).html("");
+						var tr = $(this).clone(true).html("");
 
-							$(this).find(ThTd).each(function(index)
+						$(this).find( lstTipoThTd ).each(function(lnuCell)
+						{
+							if ( lnuCuentaColumnasFila <= lnuColumnasFijas )
 							{
-								if (index == 0)
+								if ( $(this).attr("rowspan") )
+								{
+									if ( $(this).attr( "colspan" ) )
+										lnuCuentaRowspan = lnuCuentaRowspan-parseInt($(this).attr( "colspan" ))-1;
+									else
+										lnuCuentaRowspan++;
+
+									if( lnuCuantosRowspan < $(this).attr("rowspan") )
 									{
-										$newRow = tr.appendTo($donde.find(tipothtd));
-										if (!colspanAntes) {
-
-											$newRow.append($(this).clone());
-										}
-										else
-										{
-											console.log("Error: colspan in 1 column.");
-										}
-
-										if ( $(this).attr( "rowspan" ) ) {
-											if ( $(this).attr( "rowspan" ) > 0 )
-											{
-												rowspanAntes  = true;
-												cuentaRowspan = $(this).attr("rowspan");
-											}
-										};
-										
-										if ( $(this).attr( "colspan" ) ) {
-											colspanAntes   = true;
-											cuantosColspan = $(this).attr("colspan");
-										}
-										if (colspanAntes) {
-											if (cuantosColspan == cuantasCols) {
-												colspanAntes   = false;
-												mascolumnas    = false;
-												cuentaColumnas = cuantasCols;
-											}else if( (cuantasCols-cuantosColspan) > 0){
-												colspanAntes   = false;
-												mascolumnas    = true;
-												cuentaColumnas = cuantosColspan;
-											}
-										}
+										lnuCuantosRowspan = $(this).attr("rowspan")-1;
+										lboFaltaColumnaFila   = true;
 									}
-							});
+									else
+										lboFaltaColumnaFila   = true;
 
-							colspanAntes   = false;
-							mascolumnas    = true;
-							cuantosColspan = 0;
-							cuentaColumnas = 1;
+									lnuCuentaRowspanFaltan = $(this).attr("rowspan")-1;
+									lboRowspan             = true;
+								}
 
-							if (rowspanAntes) {
-								cuentaRowspan--;
+								if ( $(this).attr( "colspan" ) )
+									lnuCuentaColumnasFila += parseInt($(this).attr( "colspan" ));
+								else
+									lnuCuentaColumnasFila++;
+								
+								if (lnuCell == 0)
+								{
+									$lobClonarTrThTd = tr.appendTo($ponDonde.find(pstTipoThTbTf));
+									$lobClonarTrThTd.append($(this).clone());
+								}
+								else
+									$lobClonarTrThTd.append($(this).clone());
 							}
-						}
-						else
-						{
-							cuentaRowspan--;
-							var tr = $(this).clone(true).html("");
-							tr.appendTo($donde.find(tipothtd));
-						}
+						});
 
-						if ( cuentaRowspan == 0 )
-						{
-							rowspanAntes = false;
+						lnuCuentaColumnasFila = 1;
 
-						}
+						if( lboRowspan )
+							lnuCuantosRowspan--;
 					}
 					else
 					{
-						if (!rowspanAntes)
+						var lnuFaltan = lnuColumnasFijas - lnuCuentaRowspan;
+							lnuCuentaRowspanFaltan--;
+
+						if ( lnuCuantosRowspan-- <= 0 )
 						{
+							lboRowspan        = false;
+							lnuCuentaRowspan  = 0;
 
-							var tr = $(this).clone(true).html("");
-							
-							$(this).find(ThTd).each(function(index)
+							if( lnuFaltan > 0 )
 							{
-								if(cuentaColumnas < cuantasCols )
-								if (index < cuantasCols && mascolumnas)
+								lnuCuentaColumnasFila3 = 1;
+								lnuColumnasFijas3      = lnuFaltan;
+								var tr                 = $(this).clone(true).html("");
+
+								$(this).find( lstTipoThTd ).each(function(lnuCell)
 								{
-									if (index == 0)
+									if ( lnuCuentaColumnasFila3 <= lnuColumnasFijas3 )
 									{
-										$newRow = tr.appendTo($donde.find(tipothtd));
-
-										if (!colspanAntes)
-										{
-											$newRow.append($(this).clone());
-										}
-
-										if ( $(this).attr( "rowspan" ) )
-										{
-											if ( $(this).attr( "rowspan" ) > 0 )
-											{
-												rowspanAntes  = true;
-												cuentaRowspan = $(this).attr("rowspan");
-											}
-										};
-										
 										if ( $(this).attr( "colspan" ) )
+											lnuCuentaColumnasFila3 += parseInt($(this).attr( "colspan" ));
+										else
+											lnuCuentaColumnasFila3++;
+										
+										if (lnuCell == 0)
 										{
-											colspanAntes   = true;
-											cuantosColspan = $(this).attr("colspan");
-										}
-
-										if (colspanAntes)
-										{
-											if (cuantosColspan == cuantasCols)
-											{
-												colspanAntes   = false;
-												mascolumnas    = false;
-												cuentaColumnas = cuantasCols;
-											}
-											else if( (cuantasCols-cuantosColspan) > 0)
-											{
-												colspanAntes   = false;
-												mascolumnas    = true;
-												cuentaColumnas = cuantosColspan;
-											}
-										}
-									}
-									else
-									{
-										if (colspanAntes)
-										{
-											if (cuantosColspan == cuantasCols)
-											{
-												colspanAntes = false;
-												mascolumnas  = false;
-											}
-											else if(cuantosColspan < cuantasCols)
-											{
-												colspanAntes = false;
-												mascolumnas  = true;
-											}
+											$lobClonarTrThTd = tr.appendTo($ponDonde.find(pstTipoThTbTf));
+											$lobClonarTrThTd.append($(this).clone());
 										}
 										else
-										{
-											if (!colspanAntes)
-											{
-												if ( $(this).attr( "colspan" ) )
-												{
-													colspanAntes   = true;
-													cuantosColspan = $(this).attr("colspan");
-													cuentaColumnas = parseInt(cuentaColumnas) + parseInt(cuantosColspan);
-												}
-												else
-												{
-													cuentaColumnas++;
-												}
-
-												$newRow.append($(this).clone());
-											}
-
-											if ( $(this).attr( "colspan" ) )
-											{
-												colspanAntes   = true;
-												cuantosColspan = $(this).attr("colspan");
-												cuentaColumnas = parseInt(cuentaColumnas) + parseInt(cuantosColspan);
-											}
-
-											if ( $(this).attr( "rowspan" ) )
-											{
-												if ( $(this).attr( "rowspan" ) > 0 )
-												{
-													rowspanAntes  = true;
-													cuentaRowspan = $(this).attr("rowspan");
-												}
-											};
-
-											if (colspanAntes)
-											{
-												if (cuantosColspan == cuantasCols)
-												{
-													colspanAntes   = false;
-													mascolumnas    = false;
-													cuentaColumnas = cuantasCols;
-												}
-												else if(cuentaColumnas == cuantasCols)
-												{
-													colspanAntes   = false;
-													mascolumnas    = false;
-													cuentaColumnas = cuantasCols;
-												}
-												else if( (cuantasCols-cuantosColspan) > 0)
-												{
-													colspanAntes   = false;
-													mascolumnas    = true;
-												}
-											}
-										}								
+											$lobClonarTrThTd.append($(this).clone());
 									}
-								}
-							});
+								});
 
-							colspanAntes   = false;
-							mascolumnas    = true;
-							cuantosColspan = 0;
-							cuentaColumnas = 1;
-
-							if (rowspanAntes) {
-								cuentaRowspan--;
+								lnuCuentaColumnasFila3 = 1;
 							}
+							else
+							{
+								var tr = $(this).clone(true).html("");
+								tr.appendTo($ponDonde.find(pstTipoThTbTf));
+							}				
 						}
 						else
 						{
-							cuentaRowspan--;
-							var tr = $(this).clone(true).html("");
-							tr.appendTo($donde.find(tipothtd));
+							if( lnuFaltan > 0 )
+							{
+								lnuCuentaColumnasFila2 = 1;
+								lnuColumnasFijas2      = lnuFaltan;
+								var tr                 = $(this).clone(true).html("");
+
+								$(this).find( lstTipoThTd ).each(function(lnuCell)
+								{
+									if ( lnuCuentaColumnasFila2 <= lnuColumnasFijas2 )
+									{
+										if ( $(this).attr( "colspan" ) )
+											lnuCuentaColumnasFila2 += parseInt($(this).attr( "colspan" ));
+										else
+											lnuCuentaColumnasFila2++;
+										
+										if (lnuCell == 0)
+										{
+											$lobClonarTrThTd = tr.appendTo($ponDonde.find(pstTipoThTbTf));
+											$lobClonarTrThTd.append($(this).clone());
+										}
+										else
+											$lobClonarTrThTd.append($(this).clone());
+									}
+								});
+
+								lnuCuentaColumnasFila2 = 1;
+							}
+							else
+							{
+								var tr = $(this).clone(true).html("");
+								tr.appendTo($ponDonde.find(pstTipoThTbTf));
+							}
 						}
-
-						if ( cuentaRowspan == 0 )
-						{
-							rowspanAntes = false;
-
-						}
-					}
-
-					cuentafilass++;
+					};
 				});
 			},
-			_bindScroll: function($obj)
+			_OnScroll: function($obj)
 			{
 				var $tabla   = $obj,
 					$wrapper = $tabla.closest('.fht-table-wrapper'),
 					$thead   = $tabla.siblings('.fht-thead');
 
-				$tabla.bind('scroll', function()
+				$tabla.on('scroll', function()
 				{
 					if( !settings.soloThead )
 					{
@@ -774,19 +620,14 @@
 
 				return scrollbarWidth;
 			}
-		}
+		};
 		
 		if (methods[method])
-		{
 			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-		}
 		else if (typeof method === 'object' || !method)
-		{
 			return methods.init.apply(this, arguments);
-		}
 		else
-		{
-			$.error('El Método "' +  method + '" No existe en el plugin congelaheaderunocolumn! :( ');
-		}
+			$.error('El Método "' +  method + '" No existe en el plugin CongelarFilaColumna! :( ');
+
 	}
 })(jQuery);
