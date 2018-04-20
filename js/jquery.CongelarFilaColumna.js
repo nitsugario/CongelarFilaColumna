@@ -306,9 +306,9 @@
 						{
 							if ( lnuCuentaColumnasFila <= lnuColumnasFijas )
 							{
-								if ( $(this).attr("rowspan") )
+								if ( $(this).attr("rowspan") > 1 )
 								{
-									if ( $(this).attr( "colspan" ) )
+									if ( $(this).attr( "colspan" ) > 1)
 										lnuCuentaRowspan = lnuCuentaRowspan-parseInt($(this).attr( "colspan" ))-1;
 									else
 										lnuCuentaRowspan++;
@@ -325,7 +325,7 @@
 									lboRowspan             = true;
 								}
 
-								if ( $(this).attr( "colspan" ) )
+								if ( $(this).attr( "colspan" ) > 1 )
 									lnuCuentaColumnasFila += parseInt($(this).attr( "colspan" ));
 								else
 									lnuCuentaColumnasFila++;
@@ -361,7 +361,7 @@
 								{
 									if ( lnuCuentaColumnasFila3 <= lnuColumnasFijas3 )
 									{
-										if ( $(this).attr( "colspan" ) )
+										if ( $(this).attr( "colspan" ) > 1 )
 											lnuCuentaColumnasFila3 += parseInt($(this).attr( "colspan" ));
 										else
 											lnuCuentaColumnasFila3++;
@@ -385,7 +385,7 @@
 							{
 								if ( lnuCuentaColumnasFila2 <= lnuColumnasFijas2 )
 								{
-									if ( $(this).attr( "colspan" ) )
+									if ( $(this).attr( "colspan" ) > 1 )
 										lnuCuentaColumnasFila2 += parseInt($(this).attr( "colspan" ));
 									else
 										lnuCuentaColumnasFila2++;
@@ -448,9 +448,9 @@
 						{
 							if ( lnuCuentaColumnasFila <= lnuColumnasFijas )
 							{
-								if ( $(this).attr("rowspan") )
+								if ( $(this).attr("rowspan") > 1 )
 								{
-									if ( $(this).attr( "colspan" ) )
+									if ( $(this).attr( "colspan" ) > 1 )
 										lnuCuentaRowspan = lnuCuentaRowspan-parseInt($(this).attr( "colspan" ))-1;
 									else
 										lnuCuentaRowspan++;
@@ -467,7 +467,7 @@
 									lboRowspan             = true;
 								}
 
-								if ( $(this).attr( "colspan" ) )
+								if ( $(this).attr( "colspan" ) > 1 )
 									lnuCuentaColumnasFila += parseInt($(this).attr( "colspan" ));
 								else
 									lnuCuentaColumnasFila++;
@@ -507,7 +507,7 @@
 								{
 									if ( lnuCuentaColumnasFila3 <= lnuColumnasFijas3 )
 									{
-										if ( $(this).attr( "colspan" ) )
+										if ( $(this).attr( "colspan" ) > 1 )
 											lnuCuentaColumnasFila3 += parseInt($(this).attr( "colspan" ));
 										else
 											lnuCuentaColumnasFila3++;
@@ -542,7 +542,7 @@
 								{
 									if ( lnuCuentaColumnasFila2 <= lnuColumnasFijas2 )
 									{
-										if ( $(this).attr( "colspan" ) )
+										if ( $(this).attr( "colspan" ) > 1 )
 											lnuCuentaColumnasFila2 += parseInt($(this).attr( "colspan" ));
 										else
 											lnuCuentaColumnasFila2++;
