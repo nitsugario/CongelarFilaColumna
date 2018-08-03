@@ -75,6 +75,15 @@
 	position: relative;
 }
 
+/*When measures are used in%*/
+/*.ContenedorTabla {
+	height: 80%;
+	margin: 0 auto;
+	overflow: auto;
+	width: 100%;
+	position: fixed;
+}*/ 
+
 .header, .main {
     display: inline-block;
     height: auto;
