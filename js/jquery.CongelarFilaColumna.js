@@ -121,10 +121,30 @@
 						tabla       = this,
 						contenedor  = $(this).parent(), 
 						classT      = $tabla.attr("class"); 
-
+					
+					//Copy thead and its width height  复制thead及其宽高
+					var newTead = $("<thead></thead>");
+					var $oldTableTr = $tabla.find("thead").find("tr");
+					for(var i = 0; i < $oldTableTr.length; i++) {
+						var newTr = $("<tr></tr>");
+						var $oldTableTh = $oldTableTr.eq(i).find("th");
+						for(var j = 0; j < $oldTableTh.length; j++) {
+							var oidTd = $oldTableTh.eq(j);
+							var newTd = oidTd.clone();
+							newTd.height(oidTd.height());
+							newTd.width(oidTd.width());
+							newTr.append(newTd);
+							newTr.css({
+								'display': 'table-row'
+							})
+						}
+						newTead.append(newTr);
+					}
+					
 					helpers._ObtenerAsignarAnchoAlto($tabla); 
 
-					var thead       = $tabla.find("thead").clone(),
+					//var thead       = $tabla.find("thead").clone(),
+					var thead           = newTead,
 						anchotabla  = $tabla.width(),
 						tablaTH     = $("<table>").attr("class",classT).append(thead),
 						$tablaTHCol = $("<table>").attr("class",classT).append($("<thead>")),
